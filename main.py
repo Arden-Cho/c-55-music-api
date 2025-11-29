@@ -1,15 +1,57 @@
-from fastapi import *
+import dataclasses
+
+from fastapi import FastAPI, Depends, HTTPException
+from fastapi.responses import FileResponse
 
 import data
 import key
-from data import Music
+import reminders
+from data import Music, Reminder
 from sort_order import SortOrder
 
 app = FastAPI(title="第 55 屆分區技能競賽 - Android 程式設計")
 
 
-@app.get("/music/list", name="取得音樂列表")
-def music_list(sort_order: SortOrder, filter_term: str | None = None,
+@app.get("/music/list", name="取得音樂列表", tags=["音樂"])
+def music_list(sort_order: SortOrder,
+               filter_term: str | None = None,
                api_key: str = Depends(key.API_KEY_HEADER)) -> list[Music]:
     key.validate(api_key)
-    return data.MUSIC_LIST
+    result_list = data.MUSIC_LIST.copy()
+    if filter_term:
+        result_list = [m for m in result_list if filter_term.lower() in m.title.lower()]
+    result_list.sort(key=lambda m: m.title, reverse=sort_order == SortOrder.descending)
+    return result_list
+
+
+@app.get("/music/picture", name="取得音樂圖片", response_class=FileResponse,
+         responses={200: {"content": {"image/jpeg": {}}}}, tags=["音樂"])
+def music_picture(music_id: int, api_key: str = Depends(key.API_KEY_HEADER)) -> FileResponse:
+    key.validate(api_key)
+    if not any(music_id == item.music_id for item in data.MUSIC_LIST):
+        raise HTTPException(404, "Invalid music_id")
+    return FileResponse(f"data/picture/{music_id}.jpg", media_type="image/jpeg")
+
+
+@app.get("/music/audio", name="取得音樂", response_class=FileResponse,
+         responses={200: {"content": {"audio/mpeg": {}}}}, tags=["音樂"])
+def music_audio(music_id: int, api_key: str = Depends(key.API_KEY_HEADER)) -> FileResponse:
+    key.validate(api_key)
+    if not any(music_id == item.music_id for item in data.MUSIC_LIST):
+        raise HTTPException(404, "Invalid music_id")
+    return FileResponse(f"data/music/{music_id}.mp3", media_type="audio/mpeg")
+
+
+@app.get("/reminders/list", name="取得提醒列表", tags=["提醒"])
+def reminders_list(api_key: str = Depends(key.API_KEY_HEADER), music_id: int | None = None) -> list[Reminder]:
+    key.validate(api_key)
+    return [r for r in reminders.reminders[api_key] if (music_id is None) or (r.music_id == music_id)]
+
+
+@app.patch("/reminders/toggle", name="更新提醒開啟狀態", tags=["提醒"])
+def reminders_toggle(reminder_id: int, status: bool, api_key: str = Depends(key.API_KEY_HEADER)):
+    key.validate(api_key)
+    if not any(reminder_id == item.reminder_id for item in reminders.reminders[api_key]):
+        raise HTTPException(404, "Invalid reminder_id")
+    reminders.reminders[api_key][reminder_id] = dataclasses.replace(reminders.reminders[api_key][reminder_id],
+                                                                    enabled=status)
