@@ -1,8 +1,11 @@
 import datetime
 from dataclasses import dataclass
+from typing import Annotated
+
+from pydantic import BaseModel, Field
 
 
-@dataclass
+@dataclass(frozen=True)
 class Music:
     music_id: int
     title: str
@@ -17,6 +20,12 @@ class Reminder:
     minute: int
     music_id: int
     enabled: bool
+
+
+class ReminderPatch(BaseModel):
+    hour: Annotated[int, Field(ge=0, le=24)] | None = None
+    minute: Annotated[int, Field(ge=0, le=60)] | None = None
+    enabled: bool | None = None
 
 
 MUSIC_LIST: list[Music] = [

@@ -48,10 +48,13 @@ def reminders_list(api_key: str = Depends(key.API_KEY_HEADER), music_id: int | N
     return [r for r in reminders.reminders[api_key] if (music_id is None) or (r.music_id == music_id)]
 
 
-@app.patch("/reminders/toggle", name="更新提醒開啟狀態", tags=["提醒"])
-def reminders_toggle(reminder_id: int, status: bool, api_key: str = Depends(key.API_KEY_HEADER)):
+@app.patch("/reminders/{reminder_id}", name="更新提醒", tags=["提醒"])
+def reminders_patch(reminder_id: int, reminder_patch: data.ReminderPatch,
+                    api_key: str = Depends(key.API_KEY_HEADER)) -> Reminder:
     key.validate(api_key)
-    if not any(reminder_id == item.reminder_id for item in reminders.reminders[api_key]):
-        raise HTTPException(404, "Invalid reminder_id")
-    reminders.reminders[api_key][reminder_id] = dataclasses.replace(reminders.reminders[api_key][reminder_id],
-                                                                    enabled=status)
+    try:
+        reminder = reminders.get_reminder(api_key, reminder_id)
+    except ValueError:
+        raise HTTPException(404)
+    return reminders.update_reminder(api_key,
+                                     dataclasses.replace(reminder, **reminder_patch.model_dump(exclude_unset=True)))
