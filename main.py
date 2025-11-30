@@ -10,7 +10,7 @@ import reminders
 from data import Music, Reminder
 from sort_order import SortOrder
 
-app = FastAPI(title="第 55 屆分區技能競賽 - Android 程式設計")
+app = FastAPI(title="第 55 屆分區技能競賽 - Android 程式設計", redoc_url=None)
 
 
 @app.get("/", include_in_schema=False)
