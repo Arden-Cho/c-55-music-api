@@ -1,5 +1,7 @@
 import copy
 
+from fastapi import HTTPException
+
 import data
 import key
 from data import Reminder
@@ -13,7 +15,7 @@ def get_reminder(api_key: str, reminder_id: int) -> Reminder:
     for reminder in reminders[api_key]:
         if reminder.reminder_id == reminder_id:
             return reminder
-    raise ValueError()
+    raise HTTPException(404)
 
 
 def update_reminder(api_key: str, new_reminder: Reminder) -> Reminder:
@@ -21,5 +23,4 @@ def update_reminder(api_key: str, new_reminder: Reminder) -> Reminder:
         if reminder.reminder_id == new_reminder.reminder_id:
             reminders[api_key][index] = new_reminder
             return new_reminder
-    else:
-        raise ValueError()
+    raise HTTPException(404)

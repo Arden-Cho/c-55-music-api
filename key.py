@@ -1,15 +1,11 @@
 from fastapi import HTTPException
 from fastapi.security import APIKeyHeader
 
+USER_KEYS = ["4FK23B", "E28019", "8M0M9D", "05V2KC"]
+
+MASTER_RESET_PASSWORD = "67LB2LYU"
+
 KEY_HEADER_NAME = "X-API-KEY"
-
-USER_KEYS = [
-    "4FK23B",
-    "E28019",
-    "8M0M9D",
-    "05V2KC"
-]
-
 API_KEY_HEADER = APIKeyHeader(name=KEY_HEADER_NAME)
 
 

@@ -23,16 +23,36 @@ class Reminder:
 
 
 class ReminderPatch(BaseModel):
-    hour: Annotated[int, Field(ge=0, le=24)] | None = None
-    minute: Annotated[int, Field(ge=0, le=60)] | None = None
+    hour: Annotated[int, Field(ge=0, le=23)] | None = None
+    minute: Annotated[int, Field(ge=0, le=59)] | None = None
     enabled: bool | None = None
 
 
 MUSIC_LIST: list[Music] = [
-    Music(music_id=0, title="That's Why I Gave Up on Music", date=datetime.date(2019, 4, 10), author="ヨルシカ"),
-    Music(music_id=1, title="Elma", date=datetime.date(2019, 4, 10), author="ヨルシカ"),
-    Music(music_id=2, title="Amy", date=datetime.date(2019, 8, 28), author="ヨルシカ"),
-    Music(music_id=3, title="Rain with Cappuccino", date=datetime.date(2019, 8, 28), author="ヨルシカ"),
+    Music(
+        music_id=0,
+        title="still falling",
+        date=datetime.date(2025, 11, 24),
+        author="Øraeth",
+    ),
+    Music(
+        music_id=1,
+        title="Chances",
+        date=datetime.date(2017, 10, 16),
+        author="Silent Partner",
+    ),
+    Music(
+        music_id=2,
+        title="Take You Home Tonight",
+        date=datetime.date(2017, 8, 9),
+        author="Vibe Tracks",
+    ),
+    Music(
+        music_id=3,
+        title="Moonlight",
+        date=datetime.date(2025, 10, 30),
+        author="chillity",
+    ),
 ]
 
 REMINDERS_DEFAULT_LIST: list[Reminder] = [
