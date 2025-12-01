@@ -25,11 +25,12 @@ def music_list(
     api_key: str = Depends(key.API_KEY_HEADER),
 ) -> list[Music]:
     key.validate(api_key)
-    result_list = data.MUSIC_LIST.copy()
+    result_list = data.MUSIC_LIST
     if filter_term:
         result_list = [m for m in result_list if filter_term.lower() in m.title.lower()]
-    result_list.sort(key=lambda m: m.title, reverse=sort_order == SortOrder.descending)
-    return result_list
+    return sorted(
+        result_list, key=lambda m: m.date, reverse=sort_order == SortOrder.descending
+    )
 
 
 @app.get(
